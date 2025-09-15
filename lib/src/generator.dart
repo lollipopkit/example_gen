@@ -24,7 +24,7 @@ import 'package:source_gen/source_gen.dart';
 
 import 'annotations.dart';
 
-/// 代码生成器，基于 @ExampleModel 注解生成示例创建方法
+/// Generate example code based on @ExampleModel
 class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   @override
   FutureOr<String> generateForAnnotatedElement(
@@ -46,29 +46,29 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     final className = classElement.name;
     final buffer = StringBuffer();
 
-    // 生成示例创建方法
-    buffer.writeln('/// 自动生成的 $className 示例创建方法');
+    // Generate example class
+    buffer.writeln('/// $className example generator');
     buffer.writeln('class ${className}Example extends TypeExample<$className> {');
     buffer.writeln('  @override');
     buffer.writeln('  $className generate(ExampleContext ctx, {Map<String, Object?>? hints}) {');
     
-    // 获取构造函数
+    // Get the constructor
     final constructor = _getConstructor(classElement);
     if (constructor == null) {
       throw InvalidGenerationSourceError(
-        '$className 需要有一个公共构造函数',
+        '$className has no public constructor',
         element: classElement,
       );
     }
 
-    // 生成构造函数调用
+    // Generate constructor call
     buffer.writeln('    return $className(');
     
     for (final param in constructor.parameters) {
       final fieldName = param.name;
       final fieldType = param.type;
       
-      // 获取字段上的注解
+      // Get field annotations
       final fieldElement = classElement.fields
           .where((f) => f.name == fieldName)
           .firstOrNull;
@@ -85,9 +85,9 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       
       buffer.write('      $fieldName: ');
       
-      // 生成字段值
+      // Generate field value
       if (example != null) {
-        // 优先使用固定示例值
+        // Use fixed example value if provided
         buffer.write(_generateExampleValue(example));
       } else {
         buffer.write(_generateFieldValue(
@@ -110,19 +110,12 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     buffer.writeln('    );');
     buffer.writeln('  }');
     buffer.writeln('}');
-    
-    // 生成注册辅助方法
-    buffer.writeln();
-    buffer.writeln('/// 注册 $className 示例生成器');
-    buffer.writeln('void register${className}Example() {');
-    buffer.writeln('  ExampleRegistry.instance.register<$className>(${className}Example());');
-    buffer.writeln('}');
 
     return buffer.toString();
   }
 
   ConstructorElement? _getConstructor(ClassElement classElement) {
-    // 查找默认构造函数或第一个公共构造函数
+    // Find the unnamed public constructor
     return classElement.constructors
         .where((c) => c.isPublic)
         .firstOrNull;
@@ -138,7 +131,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final type = obj.type;
       if (type == null) continue;
       
-      // 比对类型名称
+      // Compare type names to identify the annotation
       final typeName = type.getDisplayString(withNullability: false);
       if (typeName == T.toString()) {
         return _deserializeAnnotation<T>(obj, metadata);
@@ -150,7 +143,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   T? _deserializeAnnotation<T>(dynamic constantValue, ElementAnnotation annotation) {
     final source = annotation.toSource();
     
-    // 简单的字符串解析方式来获取注解参数
+    // Parse based on type
     if (T == Example) {
       final match = RegExp(r'Example\(\s*value:\s*(.+?)\s*\)').firstMatch(source);
       if (match != null) {
@@ -249,7 +242,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   }) {
     final isNullable = fieldType.nullabilitySuffix == NullabilitySuffix.question;
     
-    // 处理可空类型
+    // Handle nullable fields
     if (isNullable && nullable != null) {
       final prob = nullable.prob;
       return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, pattern: pattern, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange)}';
@@ -271,7 +264,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   }) {
     final typeName = fieldType.getDisplayString(withNullability: false);
     
-    // 基本类型处理
+    // Handle basic types
     switch (typeName) {
       case 'String':
         return _generateStringValue(fieldName, len: len, pattern: pattern, oneOf: oneOf);
@@ -285,27 +278,27 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
         return _generateDateTimeValue(dateRange: dateRange);
     }
     
-    // 列表类型
+    // List
     if (typeName.startsWith('List<')) {
       return _generateListValue(fieldType, fieldName, items: items);
     }
     
-    // Set类型
+    // Set
     if (typeName.startsWith('Set<')) {
       return _generateSetValue(fieldType, fieldName, items: items);
     }
     
-    // Map类型
+    // Map
     if (typeName.startsWith('Map<')) {
       return _generateMapValue(fieldType, fieldName, items: items);
     }
     
-    // 枚举类型
+    // Enum
     if (fieldType.element is EnumElement) {
       return _generateEnumValue(fieldType, enumHint: enumHint);
     }
     
-    // 自定义类型
+    // Custom class - use ExampleRegistry to get example
     return 'ExampleRegistry.instance.exampleOf<$typeName>(seed: seedFor("$fieldName", 42))';
   }
 
@@ -318,7 +311,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     }
     
     if (pattern != null) {
-      // 使用 r'' 原始字符串来避免转义问题
       hints['pattern'] = "r'${pattern.regex}'";
     }
     
@@ -327,7 +319,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       hints['oneOf'] = '[$values]';
     }
     
-    // 检测邮箱字段
+    // Check email pattern
     if (fieldName.toLowerCase().contains('email')) {
       hints['email'] = 'true';
     }
@@ -368,7 +360,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   }
 
   String _generateListValue(DartType listType, String fieldName, {Items? items}) {
-    // 提取泛型参数
+    // Extract element type
     final elementType = (listType as ParameterizedType).typeArguments.first;
     
     final min = items?.min ?? 1;
@@ -383,7 +375,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   }
 
   String _generateSetValue(DartType setType, String fieldName, {Items? items}) {
-    // 类似 List 处理
+    // Same as List but wrapped in Set.from
     final elementType = (setType as ParameterizedType).typeArguments.first;
     
     final min = items?.min ?? 1;
@@ -417,7 +409,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     final values = enumElement.fields.where((f) => f.isEnumConstant).map((f) => f.name).toList();
     
     if (enumHint?.prefer != null) {
-      // 如果有首选值，70% 概率使用首选值
+      // If prefer value is valid, use it with higher probability
       return 'ctx.chance(0.7) ? ${enumHint!.prefer} : $enumName.values[ctx.intIn(0, ${values.length - 1})]';
     } else {
       return '$enumName.values[ctx.intIn(0, ${values.length - 1})]';

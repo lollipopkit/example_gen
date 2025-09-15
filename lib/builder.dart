@@ -19,6 +19,6 @@ import 'package:source_gen/source_gen.dart';
 
 import 'src/generator.dart';
 
-/// 构建器配置，用于代码生成
+/// Example code generator builder
 Builder exampleGeneratorBuilder(BuilderOptions options) => 
     PartBuilder([ExampleGenerator()], '.g.dart');
