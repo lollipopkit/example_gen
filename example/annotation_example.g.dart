@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'annotation_example.dart';
 
@@ -16,7 +17,7 @@ class UserExample extends TypeExample<User> {
           .exampleOf<String>(seed: seedFor("username", 42), hints: <String, Object?>{'minLen': 3, 'maxLen': 15}),
       email: 'john.doe@example.com',
       age: ctx.intIn(18, 65),
-      bio: ctx.chance(0.3) ? null : ctx.letters(),
+      bio: ctx.chance(0.3) ? null : ExampleRegistry.instance.exampleOf<String?>(seed: seedFor("bio", 42)),
       role: ExampleRegistry.instance.exampleOf<String>(seed: seedFor("role", 42), hints: <String, Object?>{
         'oneOf': ['developer', 'designer', 'manager', 'admin', 'user']
       }),
@@ -39,10 +40,8 @@ class ProductExample extends TypeExample<Product> {
           .exampleOf<String>(seed: seedFor("name", 42), hints: <String, Object?>{'minLen': 5, 'maxLen': 30}),
       price: ctx.doubleIn(1.0, 999.99),
       categories: List.generate(3, (i) => ctx.letters()),
-      description: ctx.chance(0.6)
-          ? null
-          : ExampleRegistry.instance.exampleOf<String>(
-              seed: seedFor("description", 42), hints: <String, Object?>{'minLen': 20, 'maxLen': 100}),
+      description:
+          ctx.chance(0.6) ? null : ExampleRegistry.instance.exampleOf<String?>(seed: seedFor("description", 42)),
     );
   }
 }
@@ -60,10 +59,7 @@ class OrderExample extends TypeExample<Order> {
       }),
       totalAmount: ctx.doubleIn(10.0, 5000.0),
       orderDate: ctx.dateIn(DateTime.utc(2024, 1, 1), DateTime.utc(2024, 12, 31)),
-      notes: ctx.chance(0.4)
-          ? null
-          : ExampleRegistry.instance
-              .exampleOf<String>(seed: seedFor("notes", 42), hints: <String, Object?>{'minLen': 10, 'maxLen': 50}),
+      notes: ctx.chance(0.4) ? null : ExampleRegistry.instance.exampleOf<String?>(seed: seedFor("notes", 42)),
     );
   }
 }

@@ -165,6 +165,8 @@ class Order {
 void main() {
   print('=== Example Gen Annotation Examples ===\n');
 
+  // Register built-in type generators
+  registerBuiltins();
   // Register custom generators
   ExampleRegistry.instance.register<User>(UserExample());
   ExampleRegistry.instance.register<Product>(ProductExample());

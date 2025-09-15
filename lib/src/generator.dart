@@ -64,8 +64,8 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     // Generate constructor call
     buffer.writeln('    return $className(');
     
-    for (final param in constructor.parameters) {
-      final fieldName = param.name;
+    for (final param in constructor.formalParameters) {
+      final fieldName = param.name ?? 'field';
       final fieldType = param.type;
       
       // Get field annotations
@@ -124,7 +124,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   T? _getAnnotation<T>(Element? element) {
     if (element == null) return null;
     
-    for (final metadata in element.metadata) {
+    for (final metadata in element.metadata.annotations) {
       final obj = metadata.computeConstantValue();
       if (obj == null) continue;
       
@@ -132,7 +132,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       if (type == null) continue;
       
       // Compare type names to identify the annotation
-      final typeName = type.getDisplayString(withNullability: false);
+      final typeName = type.getDisplayString();
       if (typeName == T.toString()) {
         return _deserializeAnnotation<T>(obj, metadata);
       }
@@ -262,7 +262,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     Items? items,
     DateRange? dateRange,
   }) {
-    final typeName = fieldType.getDisplayString(withNullability: false);
+    final typeName = fieldType.getDisplayString();
     
     // Handle basic types
     switch (typeName) {

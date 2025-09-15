@@ -165,10 +165,15 @@ class DateTimeExample extends TypeExample<DateTime> {
 void registerBuiltins() {
   final r = ExampleRegistry.instance;
   r.register<String>(StringExample());
+  r.register<String?>(StringExample());
   r.register<int>(IntExample());
+  r.register<int?>(IntExample());
   r.register<double>(DoubleExample());
+  r.register<double?>(DoubleExample());
   r.register<bool>(BoolExample());
+  r.register<bool?>(BoolExample());
   r.register<DateTime>(DateTimeExample());
+  r.register<DateTime?>(DateTimeExample());
 }
 
 /// Stable hash (for "field path + baseSeed → sub-seed")
