@@ -1,5 +1,21 @@
+// Copyright 2025 lollipopkit
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import 'package:example_gen/example_gen.dart';
 import 'package:example_gen/src/core.dart';
+
+part 'annotation_example.g.dart';
 
 // User model example using annotations
 @ExampleModel()
@@ -146,68 +162,8 @@ class Order {
   }
 }
 
-// Custom generator example
-class UserExample extends TypeExample<User> {
-  @override
-  User generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
-    return User(
-      // @Example annotation will override this value
-      id: ctx.letters(min: 8, max: 12),
-      username: ctx.letters(min: 3, max: 15),
-      // @Example annotation will override this value
-      email: ctx.email(),
-      age: ctx.intIn(18, 65),
-      bio: ctx.chance(0.7) ? ctx.letters(min: 20, max: 100) : null,
-      role: ['developer', 'designer', 'manager', 'admin', 'user'][ctx.intIn(0, 4)],
-      joinDate: ctx.dateIn(DateTime(2020, 1, 1), DateTime(2024, 12, 31)),
-      skills: List.generate(
-        ctx.intIn(1, 4),
-        (_) => ['dart', 'flutter', 'javascript', 'python', 'java', 'go', 'rust'][ctx.intIn(0, 6)],
-      ),
-      isActive: ctx.chance(0.8),
-    );
-  }
-}
-
-class ProductExample extends TypeExample<Product> {
-  @override
-  Product generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
-    return Product(
-      productId: ctx.uuid(),
-      name: ctx.letters(min: 5, max: 30),
-      price: ctx.doubleIn(1.0, 999.99),
-      categories: List.generate(
-        3,
-        (_) => ['electronics', 'clothing', 'books', 'home', 'sports', 'toys'][ctx.intIn(0, 5)],
-      ),
-      description: ctx.chance(0.4) ? ctx.letters(min: 20, max: 100) : null,
-    );
-  }
-}
-
-class OrderExample extends TypeExample<Order> {
-  @override
-  Order generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
-    final date = ctx.dateIn(DateTime(2024, 1, 1), DateTime(2024, 12, 31));
-    final dateStr = '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
-    final seq = ctx.intIn(1000, 9999);
-
-    return Order(
-      orderNumber: 'ORD-$dateStr-$seq',
-      productIds: List.generate(ctx.intIn(1, 5), (_) => ctx.uuid()),
-      status: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'][ctx.intIn(0, 4)],
-      totalAmount: ctx.doubleIn(10.0, 5000.0),
-      orderDate: date,
-      notes: ctx.chance(0.6) ? ctx.letters(min: 10, max: 50) : null,
-    );
-  }
-}
-
 void main() {
   print('=== Example Gen Annotation Examples ===\n');
-
-  // Register built-in generators
-  registerBuiltins();
 
   // Register custom generators
   ExampleRegistry.instance.register<User>(UserExample());
@@ -218,7 +174,7 @@ void main() {
 
   // Generate multiple user examples
   for (int i = 1; i <= 3; i++) {
-    final user = ExampleRegistry.instance.exampleOf<User>(seed: 100 + i);
+    final user = ExampleRegistry.instance.exampleOf<User>(seed: 100 + i, hints: {'_seed': 100 + i});
     print('User $i:');
     print('  ID: ${user.id}'); // Fixed value
     print('  Username: ${user.username}'); // Length constraint
@@ -236,7 +192,7 @@ void main() {
 
   // Generate product examples
   for (int i = 1; i <= 2; i++) {
-    final product = ExampleRegistry.instance.exampleOf<Product>(seed: 200 + i);
+    final product = ExampleRegistry.instance.exampleOf<Product>(seed: 200 + i, hints: {'_seed': 200 + i});
     print('Product $i:');
     print('  Product ID: ${product.productId}'); // UUID pattern
     print('  Name: ${product.name}'); // Length constraint
@@ -250,7 +206,7 @@ void main() {
 
   // Generate order examples
   for (int i = 1; i <= 2; i++) {
-    final order = ExampleRegistry.instance.exampleOf<Order>(seed: 300 + i);
+    final order = ExampleRegistry.instance.exampleOf<Order>(seed: 300 + i, hints: {'_seed': 300 + i});
     print('Order $i:');
     print('  Order Number: ${order.orderNumber}'); // Complex pattern
     print('  Product ID List: ${order.productIds.join(", ")}'); // Dynamic count
@@ -265,8 +221,8 @@ void main() {
 
   // Verify that same seed generates same data
   const testSeed = 42;
-  final user1 = ExampleRegistry.instance.exampleOf<User>(seed: testSeed);
-  final user2 = ExampleRegistry.instance.exampleOf<User>(seed: testSeed);
+  final user1 = ExampleRegistry.instance.exampleOf<User>(seed: testSeed, hints: {'_seed': testSeed});
+  final user2 = ExampleRegistry.instance.exampleOf<User>(seed: testSeed, hints: {'_seed': testSeed});
 
   print('Data generated using same seed $testSeed:');
   print('User1 ID: ${user1.id}');
@@ -279,21 +235,21 @@ void main() {
   // Demonstrate effects of different annotations
   print('String length constraint effects:');
   for (int i = 0; i < 3; i++) {
-    final user = ExampleRegistry.instance.exampleOf<User>(seed: 500 + i);
+    final user = ExampleRegistry.instance.exampleOf<User>(seed: 500 + i, hints: {'_seed': 500 + i});
     print('  Username "${user.username}" length: ${user.username.length} (constraint: 3-15)');
   }
   print('');
 
   print('Numeric range constraint effects:');
   for (int i = 0; i < 3; i++) {
-    final user = ExampleRegistry.instance.exampleOf<User>(seed: 600 + i);
+    final user = ExampleRegistry.instance.exampleOf<User>(seed: 600 + i, hints: {'_seed': 600 + i});
     print('  Age: ${user.age} (constraint: 18-65)');
   }
   print('');
 
   print('Collection size constraint effects:');
   for (int i = 0; i < 3; i++) {
-    final user = ExampleRegistry.instance.exampleOf<User>(seed: 700 + i);
+    final user = ExampleRegistry.instance.exampleOf<User>(seed: 700 + i, hints: {'_seed': 700 + i});
     print('  Skills count: ${user.skills.length} (constraint: 1-4)');
   }
   print('');
@@ -302,7 +258,7 @@ void main() {
   int nullCount = 0;
   const sampleSize = 10;
   for (int i = 0; i < sampleSize; i++) {
-    final user = ExampleRegistry.instance.exampleOf<User>(seed: 800 + i);
+    final user = ExampleRegistry.instance.exampleOf<User>(seed: 800 + i, hints: {'_seed': 800 + i});
     if (user.bio == null) nullCount++;
   }
   print('  $nullCount null values out of $sampleSize samples (${(nullCount / sampleSize * 100).toStringAsFixed(1)}%)');

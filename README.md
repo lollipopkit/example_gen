@@ -32,16 +32,16 @@ class User {
   @Pattern(r'^[A-Z][a-z]+ [A-Z][a-z]+$')
   final String name;
   
-  @Example(value: 'user@example.com')
+  @Example(value: 'user@example.com') // Fixed value
   final String email;
   
   @Range(min: 18, max: 80)
   final int age;
   
-  @Nullable(prob: 0.2)
+  @Nullable(prob: 0.2) // 20% chance of being null
   final String? bio;
   
-  @DateRange(start: DateTime(2020, 1, 1), end: DateTime(2024, 12, 31))
+  @DateRange(startYear: 2025, endYear: 2025)
   final DateTime createdAt;
   
   @Items(min: 1, max: 5)
@@ -124,7 +124,7 @@ print(email); // Generates email-like string
 
 | Annotation | Purpose | Example |
 |------------|---------|---------|
-| `@DateRange(start: ..., end: ...)` | DateTime range | `@DateRange(start: DateTime(2020), end: DateTime(2024))` |
+| `@DateRange(...)` | DateTime range | `@DateRange(startYear: 2025, endYear: 2025)` |
 
 ### Documentation
 
@@ -245,14 +245,6 @@ Analyze code:
 dart analyze
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.

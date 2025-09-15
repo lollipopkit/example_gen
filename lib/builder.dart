@@ -14,6 +14,11 @@
 
 library;
 
-export 'src/annotations.dart';
-export 'src/core.dart' show registerBuiltins, ExampleContext, ExampleRegistry;
-export 'src/preview.dart' show toPreviewJson;
+import 'package:build/build.dart';
+import 'package:source_gen/source_gen.dart';
+
+import 'src/generator.dart';
+
+/// 构建器配置，用于代码生成
+Builder exampleGeneratorBuilder(BuilderOptions options) => 
+    PartBuilder([ExampleGenerator()], '.g.dart');

@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      example_gen|example_generator:
+        enabled: true
+        generate_for:
+          - "lib/**"
+          - "test/**"
+          - "example/**"
+
+builders:
+  example_generator:
+    import: "package:example_gen/builder.dart"
+    builder_factories: ["exampleGeneratorBuilder"]
+    build_extensions: { ".dart": [".g.dart"] }
+    auto_apply: dependents
+    build_to: source

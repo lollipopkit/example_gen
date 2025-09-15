@@ -1,15 +1,17 @@
 name: example_gen
-description: A starting point for Dart libraries or applications.
+description: A example generator for Dart objects with constraints.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/lollipopkit/example_gen
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.0.0
 
-# Add regular dependencies here.
 dependencies:
-  # path: ^1.9.0
+  analyzer: ^6.2.0
+  build: ^2.4.1
+  source_gen: ^1.4.0
 
 dev_dependencies:
+  build_runner: ^2.4.7
   lints: ^6.0.0
   test: ^1.25.6
