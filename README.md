@@ -1,25 +1,18 @@
+English | [简体中文](README_zh.md)
+
 # example_gen
 
-A powerful Dart library for annotation-based example data generation. Generate realistic, deterministic example data for your Dart models with flexible constraints and customization options.
+A Dart library for annotation-based example data generation.  
+Generate realistic, deterministic example data for your Dart models with flexible constraints and customization options.
 
 ## Installation
-
-Add this to your package's `pubspec.yaml` file:
-
-```yaml
-dependencies:
-  example_gen: ^1.0.0
-```
-
-Then run:
-
 ```bash
-dart pub get
+dart pub add example_gen
 ```
 
 ## Quick Start
 
-### 1. Define Your Model with Annotations
+### 0. Define Your Model with Annotations
 
 ```dart
 import 'package:example_gen/example_gen.dart';
@@ -58,6 +51,12 @@ class User {
     required this.roles,
   });
 }
+```
+
+### 1. Generate the Example Code
+
+```bash
+dart run build_runner build
 ```
 
 ### 2. Register Type Generators
@@ -226,23 +225,6 @@ User 1:
     Bio: Software engineer with 5 years experience.
     Avatar: https://avatar.example.com/john_smith.jpg
     Settings: {theme: dark, notifications: true, language: en}
-```
-
-## Testing and Development
-
-Run tests:
-```bash
-dart test
-```
-
-Run example:
-```bash
-dart run example/example_gen_example.dart
-```
-
-Analyze code:
-```bash
-dart analyze
 ```
 
 ## License
