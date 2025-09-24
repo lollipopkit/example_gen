@@ -52,6 +52,11 @@ class ExampleContext {
   }
 
   String email() => '${letters(min: 3, max: 8)}@${letters(min: 3, max: 6)}.com';
+  
+  String emailWithDomain(String domain, {int? maxLen}) {
+    final username = letters(min: 3, max: maxLen != null ? (maxLen - domain.length - 1).clamp(3, 20) : 8);
+    return '$username@$domain';
+  }
 
   String uuid() {
     String hex(int n) {
@@ -99,7 +104,7 @@ class ExampleRegistry {
     }
 
     // Use random seed if none provided
-    seed ??= DateTime.now().millisecondsSinceEpoch;
+    seed ??= Random().nextInt(1 << 31);
 
     final gen = _generators[T];
     if (gen == null) {
@@ -118,15 +123,22 @@ class StringExample extends TypeExample<String> {
     final pattern = hints?['pattern'] as String?;
     final oneOf = (hints?['oneOf'] as List?)?.cast<String>();
     final email = hints?['email'] == true;
+    final domain = hints?['domain'] as String?;
 
     if (oneOf != null && oneOf.isNotEmpty) {
       return oneOf[ctx.intIn(0, oneOf.length - 1)];
     }
-    if (email) return ctx.email();
+    if (email) {
+      final emailDomain = domain ?? 'example.com';
+      return ctx.emailWithDomain(emailDomain, maxLen: max);
+    }
     if (pattern != null) {
       // Lightweight heuristic
       final p = pattern;
-      if (p.contains('@') && p.contains('.')) return ctx.email();
+      if (p.contains('@') && p.contains('.')) {
+        final emailDomain = domain ?? 'example.com';
+        return ctx.emailWithDomain(emailDomain, maxLen: max);
+      }
       if (RegExp(r'uuid|guid', caseSensitive: false).hasMatch(p)) {
         // Simple uuid v4
         String hex(int n) {

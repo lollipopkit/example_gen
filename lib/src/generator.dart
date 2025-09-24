@@ -51,7 +51,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     buffer.writeln('class ${className}Example extends TypeExample<$className> {');
     buffer.writeln('  @override');
     buffer.writeln('  $className generate(ExampleContext ctx, {Map<String, Object?>? hints}) {');
-    
+
     // Get the constructor
     final constructor = _getConstructor(classElement);
     if (constructor == null) {
@@ -63,16 +63,14 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
 
     // Generate constructor call
     buffer.writeln('    return $className(');
-    
+
     for (final param in constructor.formalParameters) {
       final fieldName = param.name ?? 'field';
       final fieldType = param.type;
-      
+
       // Get field annotations
-      final fieldElement = classElement.fields
-          .where((f) => f.name == fieldName)
-          .firstOrNull;
-      
+      final fieldElement = classElement.fields.where((f) => f.name == fieldName).firstOrNull;
+
       final example = _getAnnotation<Example>(fieldElement);
       final len = _getAnnotation<Len>(fieldElement);
       final range = _getAnnotation<Range>(fieldElement);
@@ -82,16 +80,17 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final nullable = _getAnnotation<Nullable>(fieldElement);
       final items = _getAnnotation<Items>(fieldElement);
       final dateRange = _getAnnotation<DateRange>(fieldElement);
-      
+      final email = _getAnnotation<Email>(fieldElement);
+
       buffer.write('      $fieldName: ');
-      
+
       // Generate field value
       if (example != null) {
         // Use fixed example value if provided
         buffer.write(_generateExampleValue(example));
       } else {
         buffer.write(_generateFieldValue(
-          fieldType, 
+          fieldType,
           fieldName,
           len: len,
           range: range,
@@ -101,12 +100,13 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
           nullable: nullable,
           items: items,
           dateRange: dateRange,
+          email: email,
         ));
       }
-      
+
       buffer.writeln(',');
     }
-    
+
     buffer.writeln('    );');
     buffer.writeln('  }');
     buffer.writeln('}');
@@ -116,21 +116,19 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
 
   ConstructorElement? _getConstructor(ClassElement classElement) {
     // Find the unnamed public constructor
-    return classElement.constructors
-        .where((c) => c.isPublic)
-        .firstOrNull;
+    return classElement.constructors.where((c) => c.isPublic).firstOrNull;
   }
 
   T? _getAnnotation<T>(Element? element) {
     if (element == null) return null;
-    
+
     for (final metadata in element.metadata.annotations) {
       final obj = metadata.computeConstantValue();
       if (obj == null) continue;
-      
+
       final type = obj.type;
       if (type == null) continue;
-      
+
       // Compare type names to identify the annotation
       final typeName = type.getDisplayString();
       if (typeName == T.toString()) {
@@ -142,7 +140,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
 
   T? _deserializeAnnotation<T>(dynamic constantValue, ElementAnnotation annotation) {
     final source = annotation.toSource();
-    
+
     // Parse based on type
     if (T == Example) {
       final match = RegExp(r'Example\(\s*value:\s*(.+?)\s*\)').firstMatch(source);
@@ -210,8 +208,15 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final startYear = startYearMatch != null ? int.parse(startYearMatch.group(1)!) : null;
       final endYear = endYearMatch != null ? int.parse(endYearMatch.group(1)!) : null;
       return DateRange(startYear: startYear, endYear: endYear) as T;
+    } else if (T == Email) {
+      final domainMatch =
+          RegExp(r"domain:\s*'([^']*)'").firstMatch(source) ?? RegExp(r'domain:\s*"([^"]*)"').firstMatch(source);
+      final maxLenMatch = RegExp(r'maxLen:\s*(\d+)').firstMatch(source);
+      final domain = domainMatch?.group(1) ?? 'example.com';
+      final maxLen = maxLenMatch != null ? int.parse(maxLenMatch.group(1)!) : null;
+      return Email(domain: domain, maxLen: maxLen) as T;
     }
-    
+
     return null;
   }
 
@@ -239,16 +244,25 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     Nullable? nullable,
     Items? items,
     DateRange? dateRange,
+    Email? email,
   }) {
     final isNullable = fieldType.nullabilitySuffix == NullabilitySuffix.question;
-    
+
     // Handle nullable fields
     if (isNullable && nullable != null) {
       final prob = nullable.prob;
-      return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, pattern: pattern, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange)}';
+      return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, pattern: pattern, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange, email: email)}';
     }
-    
-    return _generateNonNullValue(fieldType, fieldName, len: len, range: range, pattern: pattern, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange);
+
+    return _generateNonNullValue(fieldType, fieldName,
+        len: len,
+        range: range,
+        pattern: pattern,
+        oneOf: oneOf,
+        enumHint: enumHint,
+        items: items,
+        dateRange: dateRange,
+        email: email);
   }
 
   String _generateNonNullValue(
@@ -261,13 +275,14 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     EnumHint? enumHint,
     Items? items,
     DateRange? dateRange,
+    Email? email,
   }) {
     final typeName = fieldType.getDisplayString();
-    
+
     // Handle basic types
     switch (typeName) {
       case 'String':
-        return _generateStringValue(fieldName, len: len, pattern: pattern, oneOf: oneOf);
+        return _generateStringValue(fieldName, len: len, pattern: pattern, oneOf: oneOf, email: email);
       case 'int':
         return _generateIntValue(range: range);
       case 'double':
@@ -277,53 +292,57 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       case 'DateTime':
         return _generateDateTimeValue(dateRange: dateRange);
     }
-    
+
     // List
     if (typeName.startsWith('List<')) {
       return _generateListValue(fieldType, fieldName, items: items, oneOf: oneOf);
     }
-    
+
     // Set
     if (typeName.startsWith('Set<')) {
       return _generateSetValue(fieldType, fieldName, items: items);
     }
-    
+
     // Map
     if (typeName.startsWith('Map<')) {
       return _generateMapValue(fieldType, fieldName, items: items);
     }
-    
+
     // Enum
     if (fieldType.element is EnumElement) {
       return _generateEnumValue(fieldType, enumHint: enumHint);
     }
-    
+
     // Custom class - use ExampleRegistry to get example
     return 'ExampleRegistry.instance.exampleOf<$typeName>(seed: seedFor("$fieldName", ctx.seed))';
   }
 
-  String _generateStringValue(String fieldName, {Len? len, Pattern? pattern, OneOf? oneOf}) {
+  String _generateStringValue(String fieldName, {Len? len, Pattern? pattern, OneOf? oneOf, Email? email}) {
     final hints = <String, dynamic>{};
-    
+
     if (len != null) {
       if (len.min != null) hints['minLen'] = len.min;
       if (len.max != null) hints['maxLen'] = len.max;
     }
-    
+
     if (pattern != null) {
       hints['pattern'] = "r'${pattern.regex}'";
     }
-    
+
     if (oneOf != null) {
       final values = oneOf.values.map((v) => "'$v'").join(', ');
       hints['oneOf'] = '[$values]';
     }
-    
-    // Check email pattern
-    if (fieldName.toLowerCase().contains('email')) {
+
+    // Check email annotation or field name
+    if (email != null) {
       hints['email'] = 'true';
+      hints['domain'] = "'${email.domain}'";
+      if (email.maxLen != null) {
+        hints['maxLen'] = email.maxLen;
+      }
     }
-    
+
     if (hints.isEmpty) {
       return 'ctx.letters()';
     } else {
@@ -362,11 +381,11 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   String _generateListValue(DartType listType, String fieldName, {Items? items, OneOf? oneOf}) {
     // Extract element type
     final elementType = (listType as ParameterizedType).typeArguments.first;
-    
+
     final min = items?.min ?? 1;
     final max = items?.max ?? 3;
     final fixed = items?.fixed;
-    
+
     if (fixed != null) {
       return 'List.generate($fixed, (i) => ${_generateNonNullValue(elementType, "$fieldName[\$i]", oneOf: oneOf)})';
     } else {
@@ -377,11 +396,11 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
   String _generateSetValue(DartType setType, String fieldName, {Items? items}) {
     // Same as List but wrapped in Set.from
     final elementType = (setType as ParameterizedType).typeArguments.first;
-    
+
     final min = items?.min ?? 1;
     final max = items?.max ?? 3;
     final fixed = items?.fixed;
-    
+
     if (fixed != null) {
       return 'Set.from(List.generate($fixed, (i) => ${_generateNonNullValue(elementType, "$fieldName[\$i]")}))';
     } else {
@@ -393,13 +412,13 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     final typeArgs = (mapType as ParameterizedType).typeArguments;
     final keyType = typeArgs[0];
     final valueType = typeArgs[1];
-    
+
     final min = items?.min ?? 1;
     final max = items?.max ?? 3;
     final fixed = items?.fixed;
-    
+
     final size = fixed != null ? fixed.toString() : 'ctx.intIn($min, $max)';
-    
+
     return 'Map.fromEntries(List.generate($size, (i) => MapEntry(${_generateNonNullValue(keyType, "$fieldName.key[\$i]")}, ${_generateNonNullValue(valueType, "$fieldName.value[\$i]")})))';
   }
 
@@ -407,7 +426,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     final enumElement = enumType.element as EnumElement;
     final enumName = enumElement.name;
     final values = enumElement.fields.where((f) => f.isEnumConstant).map((f) => f.name).toList();
-    
+
     if (enumHint?.prefer != null) {
       // If prefer value is valid, use it with higher probability
       return 'ctx.chance(0.7) ? ${enumHint!.prefer} : $enumName.values[ctx.intIn(0, ${values.length - 1})]';

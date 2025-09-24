@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import 'package:example_gen/example_gen.dart';
-import 'package:example_gen/src/core.dart';
 
 part 'annotation_example.g.dart';
 
@@ -26,6 +25,7 @@ class User {
   @Len(min: 3, max: 15)
   final String username;
 
+  @Email(domain: 'example.com', maxLen: 10)
   final String email;
 
   // Numeric range constraint

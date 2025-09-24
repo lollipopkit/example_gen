@@ -18,7 +18,11 @@ class UserExample extends TypeExample<User> {
           hints: <String, Object?>{'minLen': 3, 'maxLen': 15}),
       email: ExampleRegistry.instance.exampleOf<String>(
           seed: seedFor("email", ctx.seed),
-          hints: <String, Object?>{'email': true}),
+          hints: <String, Object?>{
+            'email': true,
+            'domain': 'example.com',
+            'maxLen': 10
+          }),
       age: ctx.intIn(18, 65),
       bio: ctx.chance(0.3)
           ? null

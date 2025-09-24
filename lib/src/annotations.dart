@@ -99,3 +99,10 @@ class FieldDescription {
   final String text;
   const FieldDescription(this.text);
 }
+
+/// Email constraint with domain and length control
+class Email {
+  final String domain;
+  final int? maxLen;
+  const Email({this.domain = 'example.com', this.maxLen});
+}
