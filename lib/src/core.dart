@@ -21,11 +21,17 @@ typedef Seed = int;
 /// Unified "example generation context"
 class ExampleContext {
   final Random _rand;
-  ExampleContext(Seed seed) : _rand = Random(seed);
+  final Seed _seed;
+  ExampleContext(Seed seed)
+      : _rand = Random(seed),
+        _seed = seed;
 
   bool chance(double p) => _rand.nextDouble() < p;
   int intIn(int min, int max) => min + _rand.nextInt((max - min + 1).clamp(1, 1 << 31));
   double doubleIn(double min, double max) => min + _rand.nextDouble() * (max - min);
+
+  /// Get the current seed value for sub-generators
+  int get seed => _seed;
   String letters({int min = 3, int max = 12}) {
     final len = intIn(min, max);
     const chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -45,13 +51,14 @@ class ExampleContext {
     return b.toString();
   }
 
-  String email() => '${letters(min:3,max:8)}@${letters(min:3,max:6)}.com';
+  String email() => '${letters(min: 3, max: 8)}@${letters(min: 3, max: 6)}.com';
 
   String uuid() {
     String hex(int n) {
       const chars = '0123456789abcdef';
       return List.generate(n, (_) => chars[intIn(0, 15)]).join();
     }
+
     return '${hex(8)}-${hex(4)}-4${hex(3)}-a${hex(3)}-${hex(12)}';
   }
 
@@ -70,8 +77,9 @@ abstract class TypeExample<T> {
 
 /// Runtime registry (code generators will call basic type generation)
 class ExampleRegistry {
-  ExampleRegistry._();
-  static final instance = ExampleRegistry._();
+  ExampleRegistry();
+
+  static final instance = ExampleRegistry();
 
   final Map<Type, TypeExample<dynamic>> _generators = {};
 
@@ -84,12 +92,15 @@ class ExampleRegistry {
     _generators.clear();
   }
 
-  T exampleOf<T>({Seed seed = 1, Map<String, Object?>? hints}) {
+  T exampleOf<T>({Seed? seed, Map<String, Object?>? hints}) {
     // Auto-register built-ins if not already registered
     if (_generators.isEmpty) {
       registerBuiltins();
     }
-    
+
+    // Use random seed if none provided
+    seed ??= DateTime.now().millisecondsSinceEpoch;
+
     final gen = _generators[T];
     if (gen == null) {
       throw StateError('No generator registered for type $T');
@@ -122,6 +133,7 @@ class StringExample extends TypeExample<String> {
           const chars = '0123456789abcdef';
           return List.generate(n, (_) => chars[ctx.intIn(0, 15)]).join();
         }
+
         return '${hex(8)}-${hex(4)}-4${hex(3)}-a${hex(3)}-${hex(12)}';
       }
     }

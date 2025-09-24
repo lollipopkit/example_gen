@@ -280,7 +280,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     
     // List
     if (typeName.startsWith('List<')) {
-      return _generateListValue(fieldType, fieldName, items: items);
+      return _generateListValue(fieldType, fieldName, items: items, oneOf: oneOf);
     }
     
     // Set
@@ -299,7 +299,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     }
     
     // Custom class - use ExampleRegistry to get example
-    return 'ExampleRegistry.instance.exampleOf<$typeName>(seed: seedFor("$fieldName", 42))';
+    return 'ExampleRegistry.instance.exampleOf<$typeName>(seed: seedFor("$fieldName", ctx.seed))';
   }
 
   String _generateStringValue(String fieldName, {Len? len, Pattern? pattern, OneOf? oneOf}) {
@@ -328,7 +328,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       return 'ctx.letters()';
     } else {
       final hintsStr = hints.entries.map((e) => "'${e.key}': ${e.value}").join(', ');
-      return 'ExampleRegistry.instance.exampleOf<String>(seed: seedFor("$fieldName", 42), hints: <String, Object?>{$hintsStr})';
+      return 'ExampleRegistry.instance.exampleOf<String>(seed: seedFor("$fieldName", ctx.seed), hints: <String, Object?>{$hintsStr})';
     }
   }
 
@@ -359,7 +359,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     return 'ctx.dateIn(DateTime.utc(2000), DateTime.utc(2030))';
   }
 
-  String _generateListValue(DartType listType, String fieldName, {Items? items}) {
+  String _generateListValue(DartType listType, String fieldName, {Items? items, OneOf? oneOf}) {
     // Extract element type
     final elementType = (listType as ParameterizedType).typeArguments.first;
     
@@ -368,9 +368,9 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     final fixed = items?.fixed;
     
     if (fixed != null) {
-      return 'List.generate($fixed, (i) => ${_generateNonNullValue(elementType, "$fieldName[\$i]")})';
+      return 'List.generate($fixed, (i) => ${_generateNonNullValue(elementType, "$fieldName[\$i]", oneOf: oneOf)})';
     } else {
-      return 'List.generate(ctx.intIn($min, $max), (i) => ${_generateNonNullValue(elementType, "$fieldName[\$i]")})';
+      return 'List.generate(ctx.intIn($min, $max), (i) => ${_generateNonNullValue(elementType, "$fieldName[\$i]", oneOf: oneOf)})';
     }
   }
 

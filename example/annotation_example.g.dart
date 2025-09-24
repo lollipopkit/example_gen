@@ -12,17 +12,40 @@ class UserExample extends TypeExample<User> {
   @override
   User generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
     return User(
-      id: 'user_12345',
-      username: ExampleRegistry.instance
-          .exampleOf<String>(seed: seedFor("username", 42), hints: <String, Object?>{'minLen': 3, 'maxLen': 15}),
-      email: 'john.doe@example.com',
+      id: ctx.letters(),
+      username: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("username", ctx.seed),
+          hints: <String, Object?>{'minLen': 3, 'maxLen': 15}),
+      email: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("email", ctx.seed),
+          hints: <String, Object?>{'email': true}),
       age: ctx.intIn(18, 65),
-      bio: ctx.chance(0.3) ? null : ExampleRegistry.instance.exampleOf<String?>(seed: seedFor("bio", 42)),
-      role: ExampleRegistry.instance.exampleOf<String>(seed: seedFor("role", 42), hints: <String, Object?>{
-        'oneOf': ['developer', 'designer', 'manager', 'admin', 'user']
-      }),
-      joinDate: ctx.dateIn(DateTime.utc(2020, 1, 1), DateTime.utc(2024, 12, 31)),
-      skills: List.generate(ctx.intIn(1, 4), (i) => ctx.letters()),
+      bio: ctx.chance(0.3)
+          ? null
+          : ExampleRegistry.instance
+              .exampleOf<String?>(seed: seedFor("bio", ctx.seed)),
+      role: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("role", ctx.seed),
+          hints: <String, Object?>{
+            'oneOf': ['developer', 'designer', 'manager', 'admin', 'user']
+          }),
+      joinDate:
+          ctx.dateIn(DateTime.utc(2020, 1, 1), DateTime.utc(2024, 12, 31)),
+      skills: List.generate(
+          ctx.intIn(1, 4),
+          (i) => ExampleRegistry.instance.exampleOf<String>(
+                  seed: seedFor("skills[$i]", ctx.seed),
+                  hints: <String, Object?>{
+                    'oneOf': [
+                      'dart',
+                      'flutter',
+                      'javascript',
+                      'python',
+                      'java',
+                      'go',
+                      'rust'
+                    ]
+                  })),
       isActive: ctx.chance(0.5),
     );
   }
@@ -33,15 +56,34 @@ class ProductExample extends TypeExample<Product> {
   @override
   Product generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
     return Product(
-      productId: ExampleRegistry.instance.exampleOf<String>(seed: seedFor("productId", 42), hints: <String, Object?>{
-        'pattern': r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-      }),
-      name: ExampleRegistry.instance
-          .exampleOf<String>(seed: seedFor("name", 42), hints: <String, Object?>{'minLen': 5, 'maxLen': 30}),
+      productId: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("productId", ctx.seed),
+          hints: <String, Object?>{
+            'pattern':
+                r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+          }),
+      name: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("name", ctx.seed),
+          hints: <String, Object?>{'minLen': 5, 'maxLen': 30}),
       price: ctx.doubleIn(1.0, 999.99),
-      categories: List.generate(3, (i) => ctx.letters()),
-      description:
-          ctx.chance(0.6) ? null : ExampleRegistry.instance.exampleOf<String?>(seed: seedFor("description", 42)),
+      categories: List.generate(
+          3,
+          (i) => ExampleRegistry.instance.exampleOf<String>(
+                  seed: seedFor("categories[$i]", ctx.seed),
+                  hints: <String, Object?>{
+                    'oneOf': [
+                      'electronics',
+                      'clothing',
+                      'books',
+                      'home',
+                      'sports',
+                      'toys'
+                    ]
+                  })),
+      description: ctx.chance(0.6)
+          ? null
+          : ExampleRegistry.instance
+              .exampleOf<String?>(seed: seedFor("description", ctx.seed)),
     );
   }
 }
@@ -52,14 +94,27 @@ class OrderExample extends TypeExample<Order> {
   Order generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
     return Order(
       orderNumber: ExampleRegistry.instance.exampleOf<String>(
-          seed: seedFor("orderNumber", 42), hints: <String, Object?>{'pattern': r'^ORD-\d{8}-\d{4}$'}),
+          seed: seedFor("orderNumber", ctx.seed),
+          hints: <String, Object?>{'pattern': r'^ORD-\d{8}-\d{4}$'}),
       productIds: List.generate(ctx.intIn(1, 5), (i) => ctx.letters()),
-      status: ExampleRegistry.instance.exampleOf<String>(seed: seedFor("status", 42), hints: <String, Object?>{
-        'oneOf': ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
-      }),
+      status: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("status", ctx.seed),
+          hints: <String, Object?>{
+            'oneOf': [
+              'pending',
+              'processing',
+              'shipped',
+              'delivered',
+              'cancelled'
+            ]
+          }),
       totalAmount: ctx.doubleIn(10.0, 5000.0),
-      orderDate: ctx.dateIn(DateTime.utc(2024, 1, 1), DateTime.utc(2024, 12, 31)),
-      notes: ctx.chance(0.4) ? null : ExampleRegistry.instance.exampleOf<String?>(seed: seedFor("notes", 42)),
+      orderDate:
+          ctx.dateIn(DateTime.utc(2024, 1, 1), DateTime.utc(2024, 12, 31)),
+      notes: ctx.chance(0.4)
+          ? null
+          : ExampleRegistry.instance
+              .exampleOf<String?>(seed: seedFor("notes", ctx.seed)),
     );
   }
 }

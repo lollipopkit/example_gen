@@ -20,16 +20,12 @@ part 'annotation_example.g.dart';
 // User model example using annotations
 @ExampleModel()
 class User {
-  // Fixed example value (highest priority)
-  @Example(value: 'user_12345')
   final String id;
 
   // String length constraint
   @Len(min: 3, max: 15)
   final String username;
 
-  // Fixed email example
-  @Example(value: 'john.doe@example.com')
   final String email;
 
   // Numeric range constraint
@@ -163,8 +159,6 @@ class Order {
 }
 
 void main() {
-  print('=== Example Gen Annotation Examples ===\n');
-
   // Register built-in type generators
   registerBuiltins();
   // Register custom generators
@@ -176,7 +170,7 @@ void main() {
 
   // Generate multiple user examples
   for (int i = 1; i <= 3; i++) {
-    final user = ExampleRegistry.instance.exampleOf<User>(seed: 100 + i, hints: {'_seed': 100 + i});
+    final user = ExampleRegistry.instance.exampleOf<User>();
     print('User $i:');
     print('  ID: ${user.id}'); // Fixed value
     print('  Username: ${user.username}'); // Length constraint
