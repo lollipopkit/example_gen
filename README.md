@@ -25,7 +25,7 @@ class User {
   @Pattern(r'^[A-Z][a-z]+ [A-Z][a-z]+$')
   final String name;
   
-  @Example(value: 'user@example.com') // Fixed value
+  @Email(domain: 'company.com', maxLen: 30)
   final String email;
   
   @Range(min: 18, max: 80)
@@ -100,6 +100,7 @@ print(email); // Generates email-like string
 | `@Len(min: 5, max: 10)` | String length | `@Len(min: 5, max: 10)` |
 | `@Pattern('regex')` | Regex pattern | `@Pattern(r'\d{3}-\d{4}')` |
 | `@OneOf(['a', 'b', 'c'])` | Candidate values | `@OneOf(['red', 'blue', 'green'])` |
+| `@Email(domain: 'example.com')` | Email generation | `@Email(domain: 'company.com', maxLen: 30)` |
 
 ### Numeric Constraints
 
