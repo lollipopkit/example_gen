@@ -111,7 +111,7 @@ void main() {
   // Basic type examples
   print('String: ${ExampleRegistry.instance.exampleOf<String>(seed: 1)}');
   print('Email string: ${ExampleRegistry.instance.exampleOf<String>(seed: 2, hints: {'email': true})}');
-  print('UUID string: ${ExampleRegistry.instance.exampleOf<String>(seed: 3, hints: {'pattern': 'uuid'})}');
+  print('Random string: ${ExampleRegistry.instance.exampleOf<String>(seed: 3, hints: {'minLen': 8, 'maxLen': 12})}');
   print('Candidate value string: ${ExampleRegistry.instance.exampleOf<String>(seed: 4, hints: {'oneOf': ['red', 'green', 'blue']})}');
   print('Length-limited string: ${ExampleRegistry.instance.exampleOf<String>(seed: 5, hints: {'minLen': 10, 'maxLen': 15})}');
   print('');

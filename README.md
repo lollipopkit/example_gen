@@ -22,7 +22,7 @@ class User {
   @Len(min: 8, max: 12)
   final String id;
   
-  @Pattern(r'^[A-Z][a-z]+ [A-Z][a-z]+$')
+  @Len(min: 5, max: 20)
   final String name;
   
   @Email(domain: 'company.com', maxLen: 30)
@@ -98,7 +98,6 @@ print(email); // Generates email-like string
 | Annotation | Purpose | Example |
 |------------|---------|---------|
 | `@Len(min: 5, max: 10)` | String length | `@Len(min: 5, max: 10)` |
-| `@Pattern('regex')` | Regex pattern | `@Pattern(r'\d{3}-\d{4}')` |
 | `@OneOf(['a', 'b', 'c'])` | Candidate values | `@OneOf(['red', 'blue', 'green'])` |
 | `@Email(domain: 'example.com')` | Email generation | `@Email(domain: 'company.com', maxLen: 30)` |
 

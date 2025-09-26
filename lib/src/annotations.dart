@@ -39,12 +39,6 @@ class Range {
   const Range({this.min, this.max});
 }
 
-/// Regex pattern hint (common patterns like email/uuid will be recognized)
-class Pattern {
-  final String regex;
-  const Pattern(this.regex);
-}
-
 /// Candidate set
 class OneOf {
   final List<Object?> values;

@@ -23,7 +23,7 @@ class User {
   @Len(min: 8, max: 12)
   final String id;
   
-  @Pattern(r'^[A-Z][a-z]+ [A-Z][a-z]+$')
+  @Len(min: 5, max: 20)
   final String name;
   
   @Example(value: 'user@example.com') // 固定值
@@ -99,7 +99,6 @@ print(email); // 生成类似邮箱的字符串
 | 注解 | 用途 | 示例 |
 |------|------|------|
 | `@Len(min: 5, max: 10)` | 字符串长度 | `@Len(min: 5, max: 10)` |
-| `@Pattern('regex')` | 正则表达式模式 | `@Pattern(r'\d{3}-\d{4}')` |
 | `@OneOf(['a', 'b', 'c'])` | 候选值 | `@OneOf(['red', 'blue', 'green'])` |
 
 ### 数值约束

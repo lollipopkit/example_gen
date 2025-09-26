@@ -120,7 +120,6 @@ class StringExample extends TypeExample<String> {
   String generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
     final min = (hints?['minLen'] as int?) ?? 3;
     final max = (hints?['maxLen'] as int?) ?? 12;
-    final pattern = hints?['pattern'] as String?;
     final oneOf = (hints?['oneOf'] as List?)?.cast<String>();
     final email = hints?['email'] == true;
     final domain = hints?['domain'] as String?;
@@ -131,23 +130,6 @@ class StringExample extends TypeExample<String> {
     if (email) {
       final emailDomain = domain ?? 'example.com';
       return ctx.emailWithDomain(emailDomain, maxLen: max);
-    }
-    if (pattern != null) {
-      // Lightweight heuristic
-      final p = pattern;
-      if (p.contains('@') && p.contains('.')) {
-        final emailDomain = domain ?? 'example.com';
-        return ctx.emailWithDomain(emailDomain, maxLen: max);
-      }
-      if (RegExp(r'uuid|guid', caseSensitive: false).hasMatch(p)) {
-        // Simple uuid v4
-        String hex(int n) {
-          const chars = '0123456789abcdef';
-          return List.generate(n, (_) => chars[ctx.intIn(0, 15)]).join();
-        }
-
-        return '${hex(8)}-${hex(4)}-4${hex(3)}-a${hex(3)}-${hex(12)}';
-      }
     }
     return ctx.letters(min: min, max: max);
   }

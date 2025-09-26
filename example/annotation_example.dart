@@ -76,8 +76,8 @@ class User {
 // Product model using regex patterns
 @ExampleModel()
 class Product {
-  // UUID pattern
-  @Pattern(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')
+  // Product ID
+  @Len(min: 8, max: 12)
   final String productId;
 
   // Product name length limit
@@ -116,8 +116,8 @@ class Product {
 // Order model demonstrating more complex constraints
 @ExampleModel()
 class Order {
-  // Order number pattern: ORD-YYYYMMDD-NNNN
-  @Pattern(r'^ORD-\d{8}-\d{4}$')
+  // Order number
+  @Len(min: 10, max: 15)
   final String orderNumber;
 
   // Order item count range

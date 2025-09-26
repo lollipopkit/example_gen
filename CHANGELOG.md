@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-09-26
+
+### Removed
+- **BREAKING CHANGE**: `@Pattern` annotation has been completely removed
+  - Pattern-based string generation using regex patterns is no longer supported
+  - Use `@Len`, `@OneOf`, or `@Email` annotations for string constraints instead
+  - This simplifies the library architecture and removes complex regex pattern handling
+
+### Changed
+- Updated examples to use `@Len` constraints instead of `@Pattern`
+- Refined StringExample generator to focus on length and candidate-based generation
+- Updated documentation to reflect removal of Pattern annotation
+
+### Migration Guide
+- Replace `@Pattern(r'regex')` with `@Len(min: X, max: Y)` for length constraints
+- Replace `@Pattern` with `@OneOf(['value1', 'value2'])` for specific value sets
+- Use `@Email(domain: 'example.com')` for email-like strings
+
 ## [1.0.1] - 2025-09-25
 
 ### Added

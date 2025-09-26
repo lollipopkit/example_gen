@@ -163,15 +163,6 @@ void main() {
       expect(email, matches(r'^[a-z]+@[a-z]+\.com$'));
     });
 
-    test('should detect email pattern in regex', () {
-      final email = generator.generate(ctx, hints: {'pattern': r'^\w+@\w+\..+'});
-      expect(email, matches(r'^[a-z]+@[a-z]+\.com$'));
-    });
-
-    test('should detect UUID pattern in regex', () {
-      final uuid = generator.generate(ctx, hints: {'pattern': 'uuid'});
-      expect(uuid, matches(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$'));
-    });
   });
 
   group('IntExample Tests', () {

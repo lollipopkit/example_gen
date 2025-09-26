@@ -74,7 +74,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final example = _getAnnotation<Example>(fieldElement);
       final len = _getAnnotation<Len>(fieldElement);
       final range = _getAnnotation<Range>(fieldElement);
-      final pattern = _getAnnotation<Pattern>(fieldElement);
       final oneOf = _getAnnotation<OneOf>(fieldElement);
       final enumHint = _getAnnotation<EnumHint>(fieldElement);
       final nullable = _getAnnotation<Nullable>(fieldElement);
@@ -94,7 +93,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
           fieldName,
           len: len,
           range: range,
-          pattern: pattern,
           oneOf: oneOf,
           enumHint: enumHint,
           nullable: nullable,
@@ -172,11 +170,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final min = minMatch != null ? num.parse(minMatch.group(1)!) : null;
       final max = maxMatch != null ? num.parse(maxMatch.group(1)!) : null;
       return Range(min: min, max: max) as T;
-    } else if (T == Pattern) {
-      final match = RegExp("Pattern\\(r?['\\\"](.+?)['\\\"]\\)").firstMatch(source);
-      if (match != null) {
-        return Pattern(match.group(1)!) as T;
-      }
     } else if (T == OneOf) {
       final match = RegExp(r'OneOf\(\s*\[(.+?)\]\s*\)').firstMatch(source);
       if (match != null) {
@@ -238,7 +231,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     String fieldName, {
     Len? len,
     Range? range,
-    Pattern? pattern,
     OneOf? oneOf,
     EnumHint? enumHint,
     Nullable? nullable,
@@ -251,13 +243,12 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     // Handle nullable fields
     if (isNullable && nullable != null) {
       final prob = nullable.prob;
-      return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, pattern: pattern, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange, email: email)}';
+      return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange, email: email)}';
     }
 
     return _generateNonNullValue(fieldType, fieldName,
         len: len,
         range: range,
-        pattern: pattern,
         oneOf: oneOf,
         enumHint: enumHint,
         items: items,
@@ -270,7 +261,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     String fieldName, {
     Len? len,
     Range? range,
-    Pattern? pattern,
     OneOf? oneOf,
     EnumHint? enumHint,
     Items? items,
@@ -282,7 +272,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     // Handle basic types
     switch (typeName) {
       case 'String':
-        return _generateStringValue(fieldName, len: len, pattern: pattern, oneOf: oneOf, email: email);
+        return _generateStringValue(fieldName, len: len, oneOf: oneOf, email: email);
       case 'int':
         return _generateIntValue(range: range);
       case 'double':
@@ -317,7 +307,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     return 'ExampleRegistry.instance.exampleOf<$typeName>(seed: seedFor("$fieldName", ctx.seed))';
   }
 
-  String _generateStringValue(String fieldName, {Len? len, Pattern? pattern, OneOf? oneOf, Email? email}) {
+  String _generateStringValue(String fieldName, {Len? len, OneOf? oneOf, Email? email}) {
     final hints = <String, dynamic>{};
 
     if (len != null) {
@@ -325,9 +315,6 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       if (len.max != null) hints['maxLen'] = len.max;
     }
 
-    if (pattern != null) {
-      hints['pattern'] = "r'${pattern.regex}'";
-    }
 
     if (oneOf != null) {
       final values = oneOf.values.map((v) => "'$v'").join(', ');

@@ -62,10 +62,7 @@ class ProductExample extends TypeExample<Product> {
     return Product(
       productId: ExampleRegistry.instance.exampleOf<String>(
           seed: seedFor("productId", ctx.seed),
-          hints: <String, Object?>{
-            'pattern':
-                r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-          }),
+          hints: <String, Object?>{'minLen': 8, 'maxLen': 12}),
       name: ExampleRegistry.instance.exampleOf<String>(
           seed: seedFor("name", ctx.seed),
           hints: <String, Object?>{'minLen': 5, 'maxLen': 30}),
@@ -99,7 +96,7 @@ class OrderExample extends TypeExample<Order> {
     return Order(
       orderNumber: ExampleRegistry.instance.exampleOf<String>(
           seed: seedFor("orderNumber", ctx.seed),
-          hints: <String, Object?>{'pattern': r'^ORD-\d{8}-\d{4}$'}),
+          hints: <String, Object?>{'minLen': 10, 'maxLen': 15}),
       productIds: List.generate(ctx.intIn(1, 5), (i) => ctx.letters()),
       status: ExampleRegistry.instance.exampleOf<String>(
           seed: seedFor("status", ctx.seed),
