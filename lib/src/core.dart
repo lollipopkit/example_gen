@@ -123,9 +123,13 @@ class StringExample extends TypeExample<String> {
     final oneOf = (hints?['oneOf'] as List?)?.cast<String>();
     final email = hints?['email'] == true;
     final domain = hints?['domain'] as String?;
+    final uuid = hints?['uuid'] == true;
 
     if (oneOf != null && oneOf.isNotEmpty) {
       return oneOf[ctx.intIn(0, oneOf.length - 1)];
+    }
+    if (uuid) {
+      return ctx.uuid();
     }
     if (email) {
       final emailDomain = domain ?? 'example.com';

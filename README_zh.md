@@ -20,13 +20,13 @@ import 'package:example_gen/example_gen.dart';
 
 @ExampleModel()
 class User {
-  @Len(min: 8, max: 12)
+  @UUID()
   final String id;
   
   @Len(min: 5, max: 20)
   final String name;
   
-  @Example(value: 'user@example.com') // 固定值
+  @Email(domain: 'company.com', maxLen: 30)
   final String email;
   
   @Range(min: 18, max: 80)
@@ -100,6 +100,8 @@ print(email); // 生成类似邮箱的字符串
 |------|------|------|
 | `@Len(min: 5, max: 10)` | 字符串长度 | `@Len(min: 5, max: 10)` |
 | `@OneOf(['a', 'b', 'c'])` | 候选值 | `@OneOf(['red', 'blue', 'green'])` |
+| `@Email(domain: 'example.com')` | 邮箱生成 | `@Email(domain: 'company.com', maxLen: 30)` |
+| `@UUID()` 或 `@uuid` | UUID v4 生成 | `@UUID()` |
 
 ### 数值约束
 
@@ -166,6 +168,7 @@ final ctx = ExampleContext(seed: 42);
 ctx.letters(min: 5, max: 10);     // 随机字母
 ctx.digits(min: 3, max: 6);       // 随机数字
 ctx.email();                      // 类似邮箱的字符串
+ctx.uuid();                       // UUID v4 字符串
 
 // 数值生成
 ctx.intIn(1, 100);               // 随机整数
@@ -193,7 +196,7 @@ final name = ctx.letters(min: 5, max: 15);
 
 该库包含以下类型的生成器：
 
-- **String**：支持邮箱/UUID 检测、长度约束、模式匹配
+- **String**：支持邮箱/UUID 生成、长度约束、模式匹配
 - **int**：支持范围约束
 - **double**：支持范围约束
 - **bool**：随机布尔值
@@ -205,7 +208,7 @@ final name = ctx.letters(min: 5, max: 15);
 // 基本类型
 String: "kdmfhsldk"
 Email string: "user@example.com"
-UUID string: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+UUID string: "a1b2c3d4-e5f6-4890-abcd-ef1234567890"
 Integer: 42
 Range integer: 156
 Double: 7.23
@@ -214,7 +217,7 @@ DateTime: 2023-05-15 14:30:22.000Z
 
 // 自定义 User 示例
 User 1:
-  ID: abcdef12
+  ID: 83d218af-2f10-49bb-a7bd-d5226e8147e3
   Name: John Smith
   Email: john.smith@example.com
   Age: 28

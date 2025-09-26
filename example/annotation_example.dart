@@ -19,6 +19,7 @@ part 'annotation_example.g.dart';
 // User model example using annotations
 @ExampleModel()
 class User {
+  @uuid
   final String id;
 
   // String length constraint

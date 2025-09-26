@@ -12,7 +12,9 @@ class UserExample extends TypeExample<User> {
   @override
   User generate(ExampleContext ctx, {Map<String, Object?>? hints}) {
     return User(
-      id: ctx.letters(),
+      id: ExampleRegistry.instance.exampleOf<String>(
+          seed: seedFor("id", ctx.seed),
+          hints: <String, Object?>{'uuid': true}),
       username: ExampleRegistry.instance.exampleOf<String>(
           seed: seedFor("username", ctx.seed),
           hints: <String, Object?>{'minLen': 3, 'maxLen': 15}),

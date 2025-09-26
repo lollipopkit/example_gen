@@ -100,3 +100,10 @@ class Email {
   final int? maxLen;
   const Email({this.domain = 'example.com', this.maxLen});
 }
+
+/// UUID constraint for generating UUID strings
+class UUID {
+  const UUID();
+}
+
+const uuid = UUID();

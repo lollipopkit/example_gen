@@ -99,6 +99,16 @@ void main() {
       final date = ctx.dateIn(start, end);
       expect(date.isUtc, isTrue);
     });
+
+    test('uuid() should generate valid UUID v4 format', () {
+      final uuid = ctx.uuid();
+      expect(uuid, matches(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$'));
+      
+      // Should be deterministic with same seed
+      final ctx2 = ExampleContext(42);
+      final uuid2 = ctx2.uuid();
+      expect(uuid, equals(uuid2));
+    });
   });
 
   group('ExampleRegistry Tests', () {
@@ -161,6 +171,11 @@ void main() {
     test('should generate email when email hint is true', () {
       final email = generator.generate(ctx, hints: {'email': true});
       expect(email, matches(r'^[a-z]+@[a-z]+\.com$'));
+    });
+
+    test('should generate UUID when uuid hint is true', () {
+      final uuid = generator.generate(ctx, hints: {'uuid': true});
+      expect(uuid, matches(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$'));
     });
 
   });

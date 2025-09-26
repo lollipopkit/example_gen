@@ -19,7 +19,7 @@ import 'package:example_gen/example_gen.dart';
 
 @ExampleModel()
 class User {
-  @Len(min: 8, max: 12)
+  @UUID()
   final String id;
   
   @Len(min: 5, max: 20)
@@ -100,6 +100,7 @@ print(email); // Generates email-like string
 | `@Len(min: 5, max: 10)` | String length | `@Len(min: 5, max: 10)` |
 | `@OneOf(['a', 'b', 'c'])` | Candidate values | `@OneOf(['red', 'blue', 'green'])` |
 | `@Email(domain: 'example.com')` | Email generation | `@Email(domain: 'company.com', maxLen: 30)` |
+| `@UUID()` or `@uuid` | UUID v4 generation | `@UUID()` |
 
 ### Numeric Constraints
 
@@ -166,6 +167,7 @@ final ctx = ExampleContext(seed: 42);
 ctx.letters(min: 5, max: 10);     // Random letters
 ctx.digits(min: 3, max: 6);       // Random digits
 ctx.email();                      // Email-like string
+ctx.uuid();                       // UUID v4 string
 
 // Numeric generation
 ctx.intIn(1, 100);               // Random integer
@@ -193,7 +195,7 @@ final name = ctx.letters(min: 5, max: 15);
 
 The library includes generators for:
 
-- **String**: With email/UUID detection, length constraints, patterns
+- **String**: With email/UUID generation, length constraints, patterns
 - **int**: With range constraints
 - **double**: With range constraints  
 - **bool**: Random boolean values
@@ -205,7 +207,7 @@ The library includes generators for:
 // Basic types
 String: "kdmfhsldk"
 Email string: "user@example.com"
-UUID string: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+UUID string: "a1b2c3d4-e5f6-4890-abcd-ef1234567890"
 Integer: 42
 Range integer: 156
 Double: 7.23
@@ -214,7 +216,7 @@ DateTime: 2023-05-15 14:30:22.000Z
 
 // Custom User example
 User 1:
-  ID: abcdef12
+  ID: 83d218af-2f10-49bb-a7bd-d5226e8147e3
   Name: John Smith
   Email: john.smith@example.com
   Age: 28

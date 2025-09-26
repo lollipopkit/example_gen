@@ -80,6 +80,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final items = _getAnnotation<Items>(fieldElement);
       final dateRange = _getAnnotation<DateRange>(fieldElement);
       final email = _getAnnotation<Email>(fieldElement);
+      final uuid = _getAnnotation<UUID>(fieldElement);
 
       buffer.write('      $fieldName: ');
 
@@ -99,6 +100,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
           items: items,
           dateRange: dateRange,
           email: email,
+          uuid: uuid,
         ));
       }
 
@@ -208,6 +210,8 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       final domain = domainMatch?.group(1) ?? 'example.com';
       final maxLen = maxLenMatch != null ? int.parse(maxLenMatch.group(1)!) : null;
       return Email(domain: domain, maxLen: maxLen) as T;
+    } else if (T == UUID) {
+      return UUID() as T;
     }
 
     return null;
@@ -237,13 +241,14 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     Items? items,
     DateRange? dateRange,
     Email? email,
+    UUID? uuid,
   }) {
     final isNullable = fieldType.nullabilitySuffix == NullabilitySuffix.question;
 
     // Handle nullable fields
     if (isNullable && nullable != null) {
       final prob = nullable.prob;
-      return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange, email: email)}';
+      return 'ctx.chance($prob) ? null : ${_generateNonNullValue(fieldType, fieldName, len: len, range: range, oneOf: oneOf, enumHint: enumHint, items: items, dateRange: dateRange, email: email, uuid: uuid)}';
     }
 
     return _generateNonNullValue(fieldType, fieldName,
@@ -253,7 +258,8 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
         enumHint: enumHint,
         items: items,
         dateRange: dateRange,
-        email: email);
+        email: email,
+        uuid: uuid);
   }
 
   String _generateNonNullValue(
@@ -266,13 +272,14 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     Items? items,
     DateRange? dateRange,
     Email? email,
+    UUID? uuid,
   }) {
     final typeName = fieldType.getDisplayString();
 
     // Handle basic types
     switch (typeName) {
       case 'String':
-        return _generateStringValue(fieldName, len: len, oneOf: oneOf, email: email);
+        return _generateStringValue(fieldName, len: len, oneOf: oneOf, email: email, uuid: uuid);
       case 'int':
         return _generateIntValue(range: range);
       case 'double':
@@ -307,7 +314,7 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
     return 'ExampleRegistry.instance.exampleOf<$typeName>(seed: seedFor("$fieldName", ctx.seed))';
   }
 
-  String _generateStringValue(String fieldName, {Len? len, OneOf? oneOf, Email? email}) {
+  String _generateStringValue(String fieldName, {Len? len, OneOf? oneOf, Email? email, UUID? uuid}) {
     final hints = <String, dynamic>{};
 
     if (len != null) {
@@ -328,6 +335,11 @@ class ExampleGenerator extends GeneratorForAnnotation<ExampleModel> {
       if (email.maxLen != null) {
         hints['maxLen'] = email.maxLen;
       }
+    }
+
+    // Check UUID annotation
+    if (uuid != null) {
+      hints['uuid'] = 'true';
     }
 
     if (hints.isEmpty) {
